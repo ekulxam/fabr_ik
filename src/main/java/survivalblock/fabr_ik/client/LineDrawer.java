@@ -1,15 +1,17 @@
 package survivalblock.fabr_ik.client;
 
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.client.render.VertexConsumer;
-import net.minecraft.client.render.VertexRendering;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.math.Vec3d;
 import org.joml.Vector3f;
-import survivalblock.fabr_ik.common.MaybeTry;
 
+/**
+ * In 1.21.5, {@link net.minecraft.client.render.VertexRendering}
+ */
 @SuppressWarnings("unused")
-@Deprecated
-@MaybeTry(VertexRendering.class)
+@Environment(EnvType.CLIENT)
 public class LineDrawer {
 
     public static void drawLine(Vec3d pos, Vec3d start, Vec3d end, MatrixStack matrixStack, VertexConsumer lines, int color) {

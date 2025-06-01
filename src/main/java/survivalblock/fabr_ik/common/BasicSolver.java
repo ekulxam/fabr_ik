@@ -9,8 +9,36 @@ import java.util.List;
  * Java (Minecraft-specific) implementation of the FABRIK Inverse Kinematics Algorithm
  * @author Survivalblock
  */
-@SuppressWarnings("unused")
+@SuppressWarnings({"unused", "ProtectedMemberInFinalClass"})
 public final class BasicSolver {
+
+    public static void solve(List<Vec3d> positions, Vec3d t) {
+        solve(positions, t, Integer.MAX_VALUE);
+    }
+
+    public static void solve(List<Vec3d> positions, Vec3d t, final int maxIterations) {
+        solve(positions, t, 0.1, maxIterations);
+    }
+
+    public static void solve(List<Vec3d> positions, Vec3d t, final double tolerance, final int maxIterations) {
+        if (positions == null || positions.isEmpty()) {
+            throw new IllegalArgumentException("positions cannot be empty!");
+        }
+        solveInternal(positions, getDistances(positions), t, tolerance, maxIterations);
+    }
+
+    public static void solve(List<Vec3d> positions, List<Double> distances, Vec3d t, final double tolerance, final int maxIterations) {
+        if (positions == null || positions.isEmpty()) {
+            throw new IllegalArgumentException("positions cannot be empty!");
+        }
+        if (distances == null || distances.isEmpty()) {
+            throw new IllegalArgumentException("distances cannot be empty!");
+        }
+        if (positions.size() - 1 != distances.size()) {
+            throw new IllegalStateException("Invalid size for distances was given! Expected " + (positions.size() - 1) + " but found " + distances.size());
+        }
+        solveInternal(positions, distances, t, tolerance, maxIterations);
+    }
 
     /**
      * Implementation as described by
@@ -19,15 +47,10 @@ public final class BasicSolver {
      * @param positions The <i>mutable</i> joint positions p<sub>i</sub> for i = 1,...,n. The first position should be the root chain.
      *                  Note that the distance d<sub>i</sub> between each joint is equivalent to |p<sub>i+1</sub> - p<sub>i</sub>| for i = 1,...,n-1.
      * @param t the target position
-     * The positions parameter will have the updated positionsThe new joint positions p<sub>i</sub> for i = 1,...,n.
+     * The positions parameter will have the updated positions (the new joint positions p<sub>i</sub> for i = 1,...,n).
      */
-    public static void solve(List<Vec3d> positions, Vec3d t) {
-        if (positions == null || positions.isEmpty()) {
-            throw new IllegalArgumentException("positions cannot be empty!");
-        }
-
+    protected static void solveInternal(List<Vec3d> positions, List<Double> distances, Vec3d t, final double tolerance, final int maxIterations) {
         int size = positions.size();
-        List<Double> distances = getDistances(positions);
 
         // if max chain length > root to t distance
         if (distances.stream().mapToDouble(d -> d).sum() < positions.getFirst().distanceTo(t)) {
@@ -43,9 +66,13 @@ public final class BasicSolver {
         }
 
         final Vec3d b = positions.getFirst();
-        final double tol = 0.1;
         double difA = positions.getLast().distanceTo(t);
-        while (difA > tol) {
+        int iterations = 0;
+        while (difA > tolerance) {
+            if (iterations >= maxIterations) {
+                break;
+            }
+            iterations++;
             // stage 1: forward reaching
             positions.set(size - 1, t); // pn = t
             Vec3d previous = positions.getLast();
