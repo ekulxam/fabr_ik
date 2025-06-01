@@ -1,2 +1,2 @@
-Fabr IK 1.0.1
-- Added more overloads of the solve method in BasicSolver to allow more flexibility
+Fabr IK 1.0.2
+- Removed datagen entrypoint from fabric.mod.json
