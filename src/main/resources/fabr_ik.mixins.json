@@ -3,7 +3,6 @@
   "package": "survivalblock.fabr_ik.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
-    "LivingEntityMixin"
   ],
   "injectors": {
     "defaultRequire": 1
